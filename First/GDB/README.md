@@ -264,7 +264,7 @@ type = int
 (gdb) bt
 ```
 
-Внутри `add` результат будет примерно таким:
+Внутри `add` результат будет:
 
 ```sh
 #0 add(a=7, b=3)
@@ -287,7 +287,142 @@ type = int
 ```
 
 Выбор кадра меняет контекст просмотра. Программа при этом не выполняется и не возвращается назад во времени.
+### Прямая рекурсия
 
+Рекурсия — это выполнение функции, при котором она снова вызывается до завершения предыдущего вызова.
+
+При **прямой рекурсии функция вызывает саму себя**.
+
+Пример — вычисление факториала.
+
+```c
+#include <stdio.h>
+
+int factorial(int n)
+{
+    if (n <= 1) {
+        return 1;
+    }
+
+    int result = n * factorial(n - 1);
+    return result;
+}
+
+int main(void)
+{
+    int answer = factorial(4);
+    printf("%d\n", answer);
+    return 0;
+}
+```
+
+В таком случае вывод bt будет:
+```sh
+#0  factorial (n=1) at recur.c:5
+#1  0x0000555555555172 in factorial (n=2) at recur.c:9
+#2  0x0000555555555172 in factorial (n=3) at recur.c:9
+#3  0x0000555555555172 in factorial (n=4) at recur.c:9
+#4  0x0000555555555196 in main () at recur.c:15
+```
+
+### Косвенная рекурсия
+При косвенной рукерсии функция вызывает себя через другую
+
+Рассмотрим на примере:
+```c
+void second(int n);
+
+void first(int n)
+{
+    if (n <= 0) {
+        return;
+    }
+
+    second(n - 1);
+}
+
+void second(int n)
+{
+    if (n <= 0) {
+        return;
+    }
+
+    first(n - 1);
+}
+
+int main(void)
+{
+    first(3);
+    return 0;
+}
+```
+
+Тогда bt покажет:
+```sh
+#0  second (n=0) at recur.c:14
+#1  0x000055555555514b in first (n=1) at recur.c:9
+#2  0x0000555555555172 in second (n=2) at recur.c:18
+#3  0x000055555555514b in first (n=3) at recur.c:9
+#4  0x0000555555555189 in main () at recur.c:23
+```
+
+### Бесконеная рекурсия
+Бесконечная рекурсия возникает, когда рекурсивные вызовы не достигают условия завершения.
+
+Она может быть как прямой, так и косвенной.
+
+Допустим в программе:
+```c
+int countdown(int n)
+{
+    if (n <= 0) {
+        return 0;
+    }
+
+    int result = countdown(n);
+    return result + 1;
+}
+
+int main(void)
+{
+    return countdown(3);
+}
+```
+
+Тогда она будет выглядеть как:
+```sh
+#0  countdown (n=3) at recur.c:3
+        result = 32767
+#1  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#2  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 32767
+#3  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 1077938448
+#4  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 832
+#5  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 832
+#6  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#7  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#8  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 1
+#9  0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#10 0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#11 0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#12 0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#13 0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 0
+#14 0x000055555555514f in countdown (n=3) at recur.c:7
+        result = 32767
+#15 0x000055555555516c in main () at recur.c:13
+```
 Команда `bt full` показывает стек вместе с локальными переменными.
 ## Изменение переменных: set var
 
