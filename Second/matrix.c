@@ -43,7 +43,7 @@ int main() {
     unsigned int order;
     printf("Enter order: ");
     scanf("%u", &order);
-    int *matrix = (int *)malloc(order * sizeof(int));
+    int *matrix = (int *)malloc(order * order * sizeof(int));
     if (matrix == NULL) {
         printf("Memory allocation failed.\n");
         return 1;
