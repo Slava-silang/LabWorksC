@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#define MAX_LENGTH 64
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -12,7 +13,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    int matrix[64] = {};
+    int matrix[MAX_LENGTH] = {};
     int ch;
     int length = 0;
     int min[2] = {0};
@@ -24,7 +25,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     while ((fscanf(file, "%d", &ch) == 1)) {
-        if (length == 64) {
+        if (length == MAX_LENGTH) {
             fprintf(stderr, "Matrix too large\n");
             return 1;
         }
