@@ -5,6 +5,9 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(Third
         main.c
-        methods.h)
+        methods.h
+        methods.c
+        functions.h
+        functions.c)
 
 target_link_libraries(Third PRIVATE m)
